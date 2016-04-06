@@ -1,0 +1,53 @@
+<p>Range slider !!!</p>
+
+<div class="slider-input-block">
+    <input type="number"
+           id="{{id + '-start-value'}}"
+           class="slider-input-box"
+           name="{{id + '-start-value'}}"
+           [min]="min"
+           [max]="max"
+           [(ngModel)]="startValue"
+           (change)="valueChanged($event, 0)"
+           #startInput
+           />
+</div>
+<div class="slider-input-block">
+    <input type="number"
+           id="{{id + '-end-value'}}"
+           class="slider-input-box"
+           name="{{id + '-end-value'}}"
+           [min]="min"
+           [max]="max"
+           [(ngModel)]="endValue"
+           (change)="valueChanged($event, 1)"
+           #endInput
+           />
+</div>
+
+<div id="range-slider-container" style="clear:both;"
+     class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all">
+    <div #ribbon class="ui-slider-range ui-widget-header ui-corner-all" style="left: 0%; width: 100%;"></div>
+    <span #start
+          slideAble
+          slideDirection="horisontal"
+          dynamicRightLimit="{{id + '-right-handle'}}"
+          (onStopSliding)="onStopSliding($event)"
+          (onSliding)="onSliding($event)"
+          (onInit)="initHandlers('Start', $event)"
+          [id]="id + '-left-handle'"
+          class="ui-slider-handle ui-state-default ui-corner-all"
+          tabindex="0"
+          style="left: 0%;"></span>
+    <span #end
+          slideAble
+          slideDirection="horisontal"
+          [dynamicLeftLimit]="id + '-left-handle'"
+          (onStopSliding)="onStopSliding($event)"
+          (onSliding)="onSliding($event)"
+          (onInit)="initHandlers('End', $event)"
+          [id]="id + '-right-handle'"
+          class="ui-slider-handle ui-state-default ui-corner-all"
+          tabindex="0"
+          style="left: 100%;"></span>
+</div>
