@@ -2,11 +2,12 @@
  * Created by User on 21.03.2016.
  */
 
-import {
-    Component, Input, Output, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef, EventEmitter,
-    QueryList, ContentChildren, ContentChild, Query, ViewChildren
-} from 'angular2/core'
-import {SlideAbleDirective, BoundingRectClass} from '../ng2-slideable-directive/slideable.directive';
+declare var module: any;
+declare var __moduleName: string;
+
+import {Component, Input, Output, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef, EventEmitter} from 'angular2/core'
+import {SlideAbleDirective, BoundingRectClass, IEventSlideAble} from 'ng2-slideable-directive/slideable.directive';
+
 
 export enum RangeHandle {Start, End, Both}
 
@@ -19,10 +20,18 @@ export enum RangeHandle {Start, End, Both}
 
 export class Ng2SliderComponent {
 
-    @Input() min:number;
-    @Input() max:number;
+    @Input() min:any;
+    @Input() max:any;
     @Input() startValue:any;
     @Input() endValue:any;
+    @Input() stepValue: any;
+    @Input() set value(value:string) {
+        this.startValue = parseFloat(value);
+    }
+
+    @Input() normalHandlerStyle: Object;
+    @Input() slidingHandlerStyle: Object;
+    @Input() rangeRibbonStyle: Object;
 
     @Output('onRangeChanged') rangeChangedEvent = new EventEmitter();
 
@@ -32,18 +41,67 @@ export class Ng2SliderComponent {
     @ViewChild('startInput') startInputRef:ElementRef;
     @ViewChild('endInput') endInputRef:ElementRef;
 
-    @ViewChild('start') startD:SlideAbleDirective;
-
-    @ContentChildren(SlideAbleDirective) contentChildren: QueryList<SlideAbleDirective>;
-    @ContentChild(SlideAbleDirective) child1: SlideAbleDirective;
-
-    private range:Range;
+    private range: Range;
     private id;
+    private isRange: boolean = true;
 
-    private handlers:any = {};
+    private handlers: {
+        Start: SlideAbleDirective,
+        End: SlideAbleDirective
+    } = {
+        Start: null,
+        End: null
+    };
+    private initialStartValue: any = null;
+    private initialEndValue: any = null;
+
+    private initNormalHandlerStyle = {
+        width: '18px',
+        height: '18px',
+        border: 'solid 1px red',
+        position: 'absolute',
+        'background-color': 'yellow',
+    };
+    private initSlidingHandlerStyle = {};
+    private initRangeRibbonStyle = {
+        left: '0%',
+        width: '100%',
+        height: '10px',
+        border: 'solid 1px',
+        position: 'absolute',
+        top: '4px'
+    };
+
+    private resultNormalHandlerStyle = {};
+    private resultSlidingHandlerStyle = {};
+    private resultRangeRibbonStyle:any = {};
+
+    // Self-instance
+    public instance: Ng2SliderComponent;
+
+    private stepX: any;
 
     constructor(private CDR:ChangeDetectorRef, private _elementRef: ElementRef) {
+        // Create self instance as property for comfortable providing it to SlideAble directive
+        this.instance = this;
     }
+
+    ngOnInit() {
+        if (this.startValue != null && this.endValue == null) this.isRange = false;
+
+        Object.assign(this.initSlidingHandlerStyle, this.initNormalHandlerStyle);
+        Object.assign(this.resultNormalHandlerStyle, this.initNormalHandlerStyle, this.normalHandlerStyle);
+        Object.assign(this.resultSlidingHandlerStyle, this.initSlidingHandlerStyle, this.slidingHandlerStyle);
+        Object.assign(this.resultRangeRibbonStyle, this.initRangeRibbonStyle, this.rangeRibbonStyle);
+
+        // Compile range ribbon style line from object
+        var rangeRangeRibbonStyle = '';
+        for (let idx in this.resultRangeRibbonStyle) {
+            rangeRangeRibbonStyle += idx + ':' + this.resultRangeRibbonStyle[idx] + ';';
+        }
+        this.resultRangeRibbonStyle = rangeRangeRibbonStyle;
+
+   }
 
     refreshInputBox(boundingRect, handle:RangeHandle) {
         let value = this.range.calculateValueFromX(boundingRect.left + Math.round(boundingRect.width / 2))
@@ -71,27 +129,43 @@ export class Ng2SliderComponent {
     valueChanged(el: any, handle:RangeHandle = RangeHandle.Both) {
 
         if (handle == RangeHandle.Both || handle == RangeHandle.Start) {
+            // Affixing start value to the step grid
+            this.startValue = this.initialStartValue + Math.round((this.startValue - this.initialStartValue) / this.stepValue) * this.stepValue ;
+
+            // Check for case when the start value is over the end value
             if (parseFloat(this.startValue) > parseFloat(this.endValue)) {
-                this.startValue = this.endValue;
-                this.CDR.markForCheck();
-                this.CDR.detectChanges();
-            } else {
-                // this.startRef.nativeElement.style.left = this.range.calculatePercentFromValue(this.startValue) + '%';
+                this.startValue = this.initialStartValue + Math.floor((this.endValue - this.initialStartValue) / this.stepValue) * this.stepValue ;
             }
+
+            // Check for case when the start value is under the minimal value
+            if (parseFloat(this.startValue) < parseFloat(this.min)) {
+                this.startValue = this.initialStartValue + Math.ceil((this.min - this.initialStartValue) / this.stepValue) * this.stepValue ;
+            }
+
+            // Force start handle to redrawing
             this.handlers.Start.redraw(this.range.calculateXFromValue(this.startValue), 0);
         }
+
         if (handle == RangeHandle.Both || handle == RangeHandle.End) {
+            // Affixing end value to the step grid
+            this.endValue = this.initialEndValue + Math.round((this.endValue - this.initialEndValue) / this.stepValue) * this.stepValue ;
+
+            // Check for case when the end value is under the start value
             if (parseFloat(this.startValue) > parseFloat(this.endValue)) {
-                this.endValue = this.startValue
-                this.CDR.markForCheck();
-                this.CDR.detectChanges();
+                this.endValue = this.initialEndValue + Math.ceil((this.endValue - this.initialEndValue) / this.stepValue) * this.stepValue ;
             }
-            // this.endRef.nativeElement.style.left = this.range.calculatePercentFromValue(this.endValue) + '%';
+
+            // Check for case when the end value is over the maximum value
+            if (parseFloat(this.endValue) > parseFloat(this.max)) {
+                this.endValue = this.initialEndValue + Math.floor((this.max - this.initialEndValue) / this.stepValue) * this.stepValue ;
+            }
+
+            // Force end handle to redrawing
             this.handlers.End.redraw(this.range.calculateXFromValue(this.endValue), 0);
         }
 
-        // this.CDR.markForCheck();
-        // this.CDR.detectChanges();
+        this.CDR.markForCheck();
+        this.CDR.detectChanges();
 
     }
 
@@ -103,8 +177,16 @@ export class Ng2SliderComponent {
          */
         if (!this.min) this.min = this._elementRef.nativeElement.attributes.getNamedItem('min').value;
         if (!this.max) this.max = this._elementRef.nativeElement.attributes.getNamedItem('max').value;
+        if (!this.startValue && this._elementRef.nativeElement.attributes.getNamedItem('value')) {
+            this.startValue = this._elementRef.nativeElement.attributes.getNamedItem('value').value;
+            if (this.startValue != null && this.endValue == null) this.isRange = false;
+        }
         if (!this.startValue) this.startValue = this._elementRef.nativeElement.attributes.getNamedItem('startValue').value;
-        if (!this.endValue) this.endValue = this._elementRef.nativeElement.attributes.getNamedItem('endValue').value;
+        if (!this.endValue && this.isRange) this.endValue = this._elementRef.nativeElement.attributes.getNamedItem('endValue').value;
+        if (!this.stepValue && this._elementRef.nativeElement.attributes.getNamedItem('stepValue')) this.stepValue = this._elementRef.nativeElement.attributes.getNamedItem('stepValue').value;
+        if (!this.stepValue) this.stepValue = 1;
+        this.initialStartValue = parseFloat(this.startValue);
+        this.initialEndValue = parseFloat(this.endValue);
 
         // If "id" was not set, create it randomly (8 signs)
         if (!this._elementRef.nativeElement.id) {
@@ -120,24 +202,8 @@ export class Ng2SliderComponent {
             max: this.max
         });
 
+        this.stepX = this.range.calculateStepX(this.stepValue);
 
-    }
-
-    ngAfterViewChecked() {
-        // Seting handles to their places
-        // this.valueChanged({});
-        // this.CDR.markForCheck();
-        // this.CDR.detectChanges();
-        var a = 5;
-    }
-
-    ngAfterContentChecked() {
-        var a = 5;
-        var b = RangeHandle;
-    }
-
-    ngAfterContentInit() {
-        var a = 5;
     }
 
     rangeChangedTrigger() {
@@ -159,22 +225,26 @@ export class Ng2SliderComponent {
         this.CDR.markForCheck();
     }
 
-    onStopSliding(event) {
+    onStopSliding(event: IEventSlideAble) {
         this.rangeChangedTrigger();
     }
 
-    onSliding(event) {
+    // Handling 'onsliding' event from SlideAbleDirective
+    onSliding(event: IEventSlideAble) {
         var handle = RangeHandle.Both;
         if (event.elementId == this.id+'-left-handle') handle = RangeHandle.Start;
         if (event.elementId == this.id+'-right-handle') handle = RangeHandle.End;
         this.refreshInputBox(event.boundingRect, handle);
     }
 
-    initHandlers(name, instance) {
-        this.handlers[name] = instance;
+    initHandlers(name: string, event: IEventSlideAble) {
+        // Example of using callback function before redraw
+        event.instance.checkXBeforeRedraw = function(x, y) {
+            return true;
+        }
+        this.handlers[name] = event.instance;
         if (name == 'Start') this.valueChanged({}, RangeHandle.Start);
         if (name == 'End') this.valueChanged({}, RangeHandle.End);
-        // this.valueChanged({}, RangeHandle[name]);
     }
 }
 
@@ -212,6 +282,10 @@ export class Range {
     // Calculate value from handle position coordinate
     calculateValueFromX(x:number) {
         return this.config.min + Math.round((this.config.max - this.config.min) * (x - this.boundingRect.left) / (this.boundingRect.right - this.boundingRect.left));
+    }
+
+    calculateStepX(step) {
+        return step * (this.boundingRect.right - this.boundingRect.left) / (this.config.max - this.config.min);
     }
 
 

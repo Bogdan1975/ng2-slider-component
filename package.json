@@ -1,0 +1,32 @@
+{
+  "name": "ng2-slider-component",
+  "version": "1.0.1",
+  "description": "Angular 2 slider component.",
+  "author": "Bogdan Shapoval (targus) <it.targus@gmail.com>",
+  "main": "ng2-slider.component.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Bogdan1975/ng2-slider-component.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Bogdan1975/ng2-slider-component/issues"
+  },
+  "keywords": [
+    "angularjs",
+    "angular2",
+    "angular 2",
+    "component",
+    "drag",
+    "dragable",
+    "slide",
+    "slider",
+    "range slider",
+    "range"
+  ],
+  "dependencies": {
+    "angular2": ">=2.0.0-beta.7",
+    "ng2-slideable-directive": ">=1.0.5"
+  },
+  "devDependencies": {},
+  "license": "MIT"
+}
