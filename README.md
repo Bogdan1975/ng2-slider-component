@@ -18,8 +18,9 @@ Demo: [http://bogdan1975.github.io/slider/](http://bogdan1975.github.io/slider/)
 
 # Dependencies
 
-- [Angular 2](https://github.com/angular/angular)   `npm install angular2`
-- [SlideAble Directive Module](https://github.com/Bogdan1975/ng2-slideable-directive)   `npm install ng2-slideable-directive` 
+- [Angular 2](https://github.com/angular/angular)
+- [SlideAble Directive Module](https://github.com/Bogdan1975/ng2-slideable-directive)   `npm install ng2-slideable-directive`
+- [Styled Directive Module](https://github.com/Bogdan1975/ng2-styled-directive)   `npm install ng2-styled-directive`
     
 
 # Install

@@ -1,24 +1,29 @@
 /**
- * Created by User on 21.03.2016.
+ * Created by Targus on 21.03.2016.
+ * @author Bogdan Shapoval (targus) <it.targus@gmail.com>
  */
 
-declare var module: any;
-declare var __moduleName: string;
+declare var __moduleName: string, module:any;
 
-import {Component, Input, Output, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef, EventEmitter} from 'angular2/core'
+import {Component, Input, Output, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef, EventEmitter, ContentChildren, QueryList, ViewContainerRef, Renderer} from '@angular/core'
 import {SlideAbleDirective, BoundingRectClass, IEventSlideAble} from 'ng2-slideable-directive/slideable.directive';
+// import {tmplt} from './ng2-slider.component.html';
 
+import {Ng2StyledDirective, IStyledConfig, ISkinable} from 'ng2-styled-directive/ng2-styled.directive';
+import {skins} from './ng2-slider.skins';
 
 export enum RangeHandle {Start, End, Both}
 
+
 @Component({
     selector: 'ng2-slider',
-    templateUrl: 'app/ng2-slider-component/ng2-slider.component.html',
-    directives: [SlideAbleDirective],
-    changeDetection: ChangeDetectionStrategy.CheckAlways
+    moduleId: __moduleName,
+    templateUrl: 'ng2-slider.component.html',
+    directives: [SlideAbleDirective, Ng2StyledDirective],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class Ng2SliderComponent {
+export class Ng2SliderComponent implements ISkinable{
 
     @Input() min:any;
     @Input() max:any;
@@ -31,7 +36,12 @@ export class Ng2SliderComponent {
 
     @Input() normalHandlerStyle: Object;
     @Input() slidingHandlerStyle: Object;
-    @Input() rangeRibbonStyle: Object;
+    @Input() rangeRibbonStyle: Object|string;
+
+    // @Input() handleStyle: Object;
+    @Input() skin: string;
+    @Input() styleBlock: string;
+    // @Input() stylePath: string;
 
     @Output('onRangeChanged') rangeChangedEvent = new EventEmitter();
 
@@ -41,9 +51,13 @@ export class Ng2SliderComponent {
     @ViewChild('startInput') startInputRef:ElementRef;
     @ViewChild('endInput') endInputRef:ElementRef;
 
+    @ContentChildren(Ng2StyledDirective) _styledDirectives:QueryList<Ng2StyledDirective>;
+
     private range: Range;
     private id;
     private isRange: boolean = true;
+
+    private _skins = skins;
 
     private handlers: {
         Start: SlideAbleDirective,
@@ -55,33 +69,36 @@ export class Ng2SliderComponent {
     private initialStartValue: any = null;
     private initialEndValue: any = null;
 
-    private initNormalHandlerStyle = {
+    /*private initNormalHandlerStyle = {
         width: '18px',
         height: '18px',
         border: 'solid 1px red',
         position: 'absolute',
         'background-color': 'yellow',
-    };
+    };*/
+    private initNormalHandlerStyle = {}
     private initSlidingHandlerStyle = {};
-    private initRangeRibbonStyle = {
+    /*private initRangeRibbonStyle = {
         left: '0%',
         width: '100%',
         height: '10px',
         border: 'solid 1px',
         position: 'absolute',
         top: '4px'
-    };
+    };*/
+    private initRangeRibbonStyle = {}
 
     private resultNormalHandlerStyle = {};
     private resultSlidingHandlerStyle = {};
     private resultRangeRibbonStyle:any = {};
+    private resultHandleStyle = [];
 
     // Self-instance
     public instance: Ng2SliderComponent;
 
     private stepX: any;
 
-    constructor(private CDR:ChangeDetectorRef, private _elementRef: ElementRef) {
+    constructor(private CDR:ChangeDetectorRef, private _elementRef: ElementRef, private _view: ViewContainerRef, private renderer: Renderer) {
         // Create self instance as property for comfortable providing it to SlideAble directive
         this.instance = this;
     }
@@ -95,12 +112,24 @@ export class Ng2SliderComponent {
         Object.assign(this.resultRangeRibbonStyle, this.initRangeRibbonStyle, this.rangeRibbonStyle);
 
         // Compile range ribbon style line from object
-        var rangeRangeRibbonStyle = '';
+/*        var rangeRangeRibbonStyle = '';
         for (let idx in this.resultRangeRibbonStyle) {
             rangeRangeRibbonStyle += idx + ':' + this.resultRangeRibbonStyle[idx] + ';';
         }
-        this.resultRangeRibbonStyle = rangeRangeRibbonStyle;
+        this.resultRangeRibbonStyle = rangeRangeRibbonStyle;*/
 
+        this.resultRangeRibbonStyle = this.convertStyles(this.resultRangeRibbonStyle);
+        if (!this.styleBlock) {
+            var normal = this.convertStyles(this.resultNormalHandlerStyle);
+            if (normal) this.resultHandleStyle.push(`.slider-handle  ${normal}`);
+            var sliding = this.convertStyles(this.resultSlidingHandlerStyle);
+            if (sliding) this.resultHandleStyle.push(`.slider-handle.sliding ${sliding}`);
+        }
+/*        this.range = new Range({
+            element: this.ribbon.nativeElement,
+            min: this.min,
+            max: this.max
+        });*/
    }
 
     refreshInputBox(boundingRect, handle:RangeHandle) {
@@ -120,6 +149,31 @@ export class Ng2SliderComponent {
         this.CDR.markForCheck();
 
         return value;
+    }
+
+    refreshInputBoxByPercent(percent, handle:RangeHandle) {
+        let precision = this.calculatePrecision(this.stepValue)
+        let value = (+this.min + (this.max-this.min)*percent/100).toFixed(precision);
+        switch (handle) {
+            case RangeHandle.Start:
+                this.startValue = value.toString();
+                break;
+            case RangeHandle.End:
+                this.endValue = value.toString();
+                break;
+            default:
+                break;
+        }
+
+        this.CDR.detectChanges();
+        this.CDR.markForCheck();
+
+        return value;
+    }
+
+    calculatePrecision (x) {
+        // @ToDo: make precision calculation method
+        return 0;
     }
 
     /**
@@ -143,7 +197,9 @@ export class Ng2SliderComponent {
             }
 
             // Force start handle to redrawing
-            this.handlers.Start.redraw(this.range.calculateXFromValue(this.startValue), 0);
+            if (this.range) {
+                this.handlers.Start.redraw(this.range.calculateXFromValue(this.startValue), 0);
+            }
         }
 
         if (handle == RangeHandle.Both || handle == RangeHandle.End) {
@@ -161,7 +217,9 @@ export class Ng2SliderComponent {
             }
 
             // Force end handle to redrawing
-            this.handlers.End.redraw(this.range.calculateXFromValue(this.endValue), 0);
+            if (this.range) {
+                this.handlers.End.redraw(this.range.calculateXFromValue(this.endValue), 0);
+            }
         }
 
         this.CDR.markForCheck();
@@ -181,8 +239,10 @@ export class Ng2SliderComponent {
             this.startValue = this._elementRef.nativeElement.attributes.getNamedItem('value').value;
             if (this.startValue != null && this.endValue == null) this.isRange = false;
         }
-        if (!this.startValue) this.startValue = this._elementRef.nativeElement.attributes.getNamedItem('startValue').value;
-        if (!this.endValue && this.isRange) this.endValue = this._elementRef.nativeElement.attributes.getNamedItem('endValue').value;
+        if (!this.startValue && this._elementRef.nativeElement.attributes.getNamedItem('startValue')) this.startValue = this._elementRef.nativeElement.attributes.getNamedItem('startValue').value;
+        if (!this.startValue) this.startValue = this.min;
+        if (!this.endValue && this.isRange && this._elementRef.nativeElement.attributes.getNamedItem('endValue')) this.endValue = this._elementRef.nativeElement.attributes.getNamedItem('endValue').value;
+        if (!this.endValue && this.isRange) this.endValue = this.max;
         if (!this.stepValue && this._elementRef.nativeElement.attributes.getNamedItem('stepValue')) this.stepValue = this._elementRef.nativeElement.attributes.getNamedItem('stepValue').value;
         if (!this.stepValue) this.stepValue = 1;
         this.initialStartValue = parseFloat(this.startValue);
@@ -196,11 +256,43 @@ export class Ng2SliderComponent {
             this.id = this._elementRef.nativeElement.id
         }
 
+        //
+        var needToRefresh = false;
+        var styledInstance: any;
+        if (!this._styledDirectives.length) {
+            styledInstance = new Ng2StyledDirective(this._elementRef, <any>this._view);
+            // this.renderer.setElementAttribute(this._elementRef, 'skin', 'default');
+            styledInstance.skin = this.skin || 'default';
+            needToRefresh = true;
+        } else {
+            styledInstance = this._styledDirectives.first;
+        }
+        if (this.resultHandleStyle.length || this.resultRangeRibbonStyle) {
+            if (typeof(styledInstance.styleBlock) == 'string') {
+                styledInstance.styleBlock = [styledInstance.styleBlock];
+            } else if (styledInstance.styleBlock == null) {
+                styledInstance.styleBlock = [];
+            }
+            if (this.resultHandleStyle.length) {
+                styledInstance.styleBlock = this.resultHandleStyle.concat(styledInstance.styleBlock);
+            }
+            if (this.resultRangeRibbonStyle) {
+                styledInstance.styleBlock.push(`.range-ribbon ${this.resultRangeRibbonStyle}`);
+            }
+            // styledInstance.styleBlock = this.resultHandleStyle;
+            // styledInstance.skin = 'none';
+            needToRefresh = true;
+        }
+        if (needToRefresh) styledInstance.ngAfterViewInit();
+
         this.range = new Range({
             element: this.ribbon.nativeElement,
             min: this.min,
             max: this.max
         });
+
+        if (this.handlers.Start) this.valueChanged({}, RangeHandle.Start);
+        if (this.handlers.End) this.valueChanged({}, RangeHandle.End);
 
         this.stepX = this.range.calculateStepX(this.stepValue);
 
@@ -234,7 +326,8 @@ export class Ng2SliderComponent {
         var handle = RangeHandle.Both;
         if (event.elementId == this.id+'-left-handle') handle = RangeHandle.Start;
         if (event.elementId == this.id+'-right-handle') handle = RangeHandle.End;
-        this.refreshInputBox(event.boundingRect, handle);
+        // this.refreshInputBox(event.boundingRect, handle);
+        this.refreshInputBoxByPercent(event.relativePercentHorisontal, handle);
     }
 
     initHandlers(name: string, event: IEventSlideAble) {
@@ -243,8 +336,38 @@ export class Ng2SliderComponent {
             return true;
         }
         this.handlers[name] = event.instance;
-        if (name == 'Start') this.valueChanged({}, RangeHandle.Start);
-        if (name == 'End') this.valueChanged({}, RangeHandle.End);
+        // if (name == 'Start') this.valueChanged({}, RangeHandle.Start);
+        // if (name == 'End') this.valueChanged({}, RangeHandle.End);
+    }
+
+    convertStyles(styleArray: Object) {
+        var style = '';
+        for (let idx in styleArray) {
+            style += idx + ':' + styleArray[idx] + ';';
+        }
+        if (style!='') style = `{${style}}`;
+        return style;
+    }
+
+    // create configuration for using skins by "styled" directive
+    // Implementation of ISkinable interface
+    getStyledConfig():IStyledConfig {
+        var config:IStyledConfig = {};
+        // if (!this.skin) return config;
+/*        this._skinNames.forEach((value) => {
+            config[value] = {
+                'path': `${this._skinDirectory}/${value}.css`
+            }
+        });
+        for (let idx in this._skins[this.skin]) {
+
+        }
+
+        if (this._skins[this.skin].band) {
+            config[this.skin][`${this.skin}-band`]
+        }*/
+        config = this._skins;
+        return config;
     }
 }
 

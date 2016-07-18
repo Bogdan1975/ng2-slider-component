@@ -25,12 +25,13 @@
            />
 </div>
 
-<div id="range-slider-container" style="clear:both; position:relative;"
-     class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all">
+<div style="clear:both; position:relative;"
+     class="slider-container ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"
+     styled
+     [styleBlock] = "['{height: 26px; margin-top: 7px; margin-bottom: 12px}', '.slider-handle {box-sizing: content-box;}']">
     <div #ribbon
          id="{{id + '-ribbon'}}"
-         class="ui-slider-range ui-widget-header ui-corner-all"
-         style="{{ (resultRangeRibbonStyle !=  null) ? resultRangeRibbonStyle : null }}">
+         class="range-ribbon ui-slider-range ui-widget-header ui-corner-all">
     </div>
     <span #start
           slideAble
@@ -43,9 +44,7 @@
           [id]="id + '-left-handle'"
           [parent]="instance"
           [step]="stepX"
-          [normalStyle]="(resultNormalHandlerStyle !=  null) ? resultNormalHandlerStyle : null"
-          [slidingStyle]="(resultSlidingHandlerStyle !=  null) ? resultSlidingHandlerStyle : null"
-          class="ui-slider-handle ui-state-default ui-corner-all"
+          class="slider-handle ui-slider-handle ui-state-default ui-corner-all"
           tabindex="0"
           style="left: 0%;"></span>
     <span *ngIf="isRange"
@@ -59,9 +58,7 @@
           (onInit)="initHandlers('End', $event)"
           [id]="id + '-right-handle'"
           [step]="stepX"
-          [normalStyle]="(resultNormalHandlerStyle !=  null) ? resultNormalHandlerStyle : null"
-          [slidingStyle]="(resultSlidingHandlerStyle !=  null) ? resultSlidingHandlerStyle : null"
-          class="ui-slider-handle ui-state-default ui-corner-all"
+          class="slider-handle ui-slider-handle ui-state-default ui-corner-all"
           tabindex="0"
           style="left: 100%;"></span>
 </div>
