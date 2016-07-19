@@ -1,6 +1,6 @@
 {
   "name": "ng2-slider-component",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Angular 2 slider component.",
   "author": "Bogdan Shapoval (targus) <it.targus@gmail.com>",
   "main": "ng2-slider.component.ts",
@@ -24,8 +24,8 @@
     "range"
   ],
   "dependencies": {
-    "ng2-slideable-directive": "1.0.6",
-    "ng2-styled-directive": "1.0.2"
+    "ng2-slideable-directive": "1.0.9",
+    "ng2-styled-directive": "1.0.4"
   },
   "devDependencies": {},
   "license": "MIT"
