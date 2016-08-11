@@ -18,7 +18,7 @@ export enum RangeHandle {Start, End, Both}
 @Component({
     selector: 'ng2-slider',
     moduleId: __moduleName,
-    templateUrl: 'ng2-slider.component.html',
+    templateUrl: './ng2-slider.component.html',
     directives: [SlideAbleDirective, Ng2StyledDirective],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
