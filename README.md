@@ -31,6 +31,29 @@ You can get it on npm.
 npm install ng2-slider-component
 ```
 
+###`IMPORTANT!`
+
+*.js files compiled for WebPack
+
+If you use SystemJS, you have to use *.system.js files, they are compiled for SystemJS.
+
+Fragment of SystemJS config:
+
+```javascript
+packages: {
+
+    ....
+    
+    'node_modules/ng2-slider-component': {
+            main: 'ng2-slider.component.system.js',
+            defaultExtension: 'system.js' 
+    },
+    
+    .... 
+    
+}
+```
+
 
 # Usage
 

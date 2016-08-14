@@ -3,12 +3,24 @@
  * @author Bogdan Shapoval (targus) <it.targus@gmail.com>
  */
 
-declare var __moduleName: string, module:any;
+// declare var __moduleName: string, module:any;
 
-import {Component, Input, Output, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef, EventEmitter, ContentChildren, QueryList, ViewContainerRef, Renderer} from '@angular/core'
+import {
+    Component,
+    Input,
+    Output,
+    ViewChild,
+    ElementRef,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    EventEmitter,
+    ContentChildren,
+    QueryList,
+    ViewContainerRef,
+    Renderer
+} from '@angular/core'
+
 import {SlideAbleDirective, BoundingRectClass, IEventSlideAble} from 'ng2-slideable-directive/slideable.directive';
-// import {tmplt} from './ng2-slider.component.html';
-
 import {Ng2StyledDirective, IStyledConfig, ISkinable} from 'ng2-styled-directive/ng2-styled.directive';
 import {skins} from './ng2-slider.skins';
 
@@ -17,8 +29,9 @@ export enum RangeHandle {Start, End, Both}
 
 @Component({
     selector: 'ng2-slider',
-    moduleId: __moduleName,
-    templateUrl: 'ng2-slider.component.html',
+    moduleId: module.id,
+    templateUrl: './ng2-slider.component.html',
+    // template: require('./ng2-slider.component.html'), // For webpack-compatible compiling
     directives: [SlideAbleDirective, Ng2StyledDirective],
     changeDetection: ChangeDetectionStrategy.OnPush
 })

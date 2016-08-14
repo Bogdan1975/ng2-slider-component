@@ -1,5 +1,6 @@
 # Created by .ignore support plugin (hsz.mobi)
 .gitignore
 .npmignore
+.idea
 *.ts
 !*.d.ts
