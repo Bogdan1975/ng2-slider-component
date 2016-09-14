@@ -66,6 +66,7 @@ var Ng2SliderComponent = (function () {
         }
     };
     Ng2SliderComponent.prototype.refreshInputBox = function (boundingRect, handle) {
+        this.range.resetBoundingRect();
         var value = this.range.calculateValueFromX(boundingRect.left + Math.round(boundingRect.width / 2));
         switch (handle) {
             case RangeHandle.Start:
@@ -103,6 +104,7 @@ var Ng2SliderComponent = (function () {
     };
     Ng2SliderComponent.prototype.valueChanged = function (el, handle) {
         if (handle === void 0) { handle = RangeHandle.Both; }
+        this.range.resetBoundingRect();
         if (handle == RangeHandle.Both || handle == RangeHandle.Start) {
             this.startValue = this.initialStartValue + Math.round((this.startValue - this.initialStartValue) / this.stepValue) * this.stepValue;
             if (parseFloat(this.startValue) > parseFloat(this.endValue)) {
@@ -129,6 +131,7 @@ var Ng2SliderComponent = (function () {
         }
         this.CDR.markForCheck();
         this.CDR.detectChanges();
+        this.rangeChangedTrigger();
     };
     Ng2SliderComponent.prototype.ngAfterViewInit = function () {
         if (!this.min)
@@ -321,8 +324,7 @@ var Ng2SliderComponent = (function () {
     Ng2SliderComponent = __decorate([
         core_1.Component({
             selector: 'ng2-slider',
-            template: "<div class=\"slider-input-block\">\n    <input type=\"number\"\n           id=\"{{id + '-start-value'}}\"\n           npm publish\n           name=\"{{id + '-start-value'}}\"\n           [step]=\"stepValue\"\n           [min]=\"min\"\n           [max]=\"max\"\n           [(ngModel)]=\"startValue\"\n           (change)=\"valueChanged($event, 0)\"\n           #startInput\n           />\n</div>\n<div *ngIf=\"isRange\" class=\"slider-input-block\">\n    <input type=\"number\"\n           id=\"{{id + '-end-value'}}\"\n           class=\"slider-input-box\"\n           name=\"{{id + '-end-value'}}\"\n           [step]=\"stepValue\"\n           [min]=\"min\"\n           [max]=\"max\"\n           [(ngModel)]=\"endValue\"\n           (change)=\"valueChanged($event, 1)\"\n           #endInput\n           />\n</div>\n\n<div style=\"clear:both; position:relative;\"\n     class=\"slider-container ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all\"\n     styled\n     [styleBlock] = \"['{height: 26px; margin-top: 7px; margin-bottom: 12px}', '.slider-handle {box-sizing: content-box;}']\">\n    <div #ribbon\n         id=\"{{id + '-ribbon'}}\"\n         class=\"range-ribbon ui-slider-range ui-widget-header ui-corner-all\">\n    </div>\n    <span #start\n          slideAble\n          slideDirection=\"horisontal\"\n          boundElement=\"{{id + '-ribbon'}}\"\n          dynamicRightLimit=\"{{(isRange == true) ? id + '-right-handle' : null}}\"\n          (onStopSliding)=\"onStopSliding($event)\"\n          (onSliding)=\"onSliding($event)\"\n          (onInit)=\"initHandlers('Start', $event)\"\n          [id]=\"id + '-left-handle'\"\n          [parent]=\"instance\"\n          [step]=\"stepX\"\n          class=\"slider-handle ui-slider-handle ui-state-default ui-corner-all\"\n          tabindex=\"0\"\n          style=\"left: 0%;\"></span>\n    <span *ngIf=\"isRange\"\n          #end\n          slideAble\n          slideDirection=\"horisontal\"\n          boundElement=\"{{id + '-ribbon'}}\"\n          [dynamicLeftLimit]=\"id + '-left-handle'\"\n          (onStopSliding)=\"onStopSliding($event)\"\n          (onSliding)=\"onSliding($event)\"\n          (onInit)=\"initHandlers('End', $event)\"\n          [id]=\"id + '-right-handle'\"\n          [step]=\"stepX\"\n          class=\"slider-handle ui-slider-handle ui-state-default ui-corner-all\"\n          tabindex=\"0\"\n          style=\"left: 100%;\"></span>\n</div>\n",
-            changeDetection: core_1.ChangeDetectionStrategy.OnPush
+            template: "<div class=\"slider-input-block\">\n    <input type=\"number\"\n           id=\"{{id + '-start-value'}}\"\n           npm publish\n           name=\"{{id + '-start-value'}}\"\n           [step]=\"stepValue\"\n           [min]=\"min\"\n           [max]=\"max\"\n           [(ngModel)]=\"startValue\"\n           (change)=\"valueChanged($event, 0)\"\n           #startInput\n           />\n</div>\n<div *ngIf=\"isRange\" class=\"slider-input-block\">\n    <input type=\"number\"\n           id=\"{{id + '-end-value'}}\"\n           class=\"slider-input-box\"\n           name=\"{{id + '-end-value'}}\"\n           [step]=\"stepValue\"\n           [min]=\"min\"\n           [max]=\"max\"\n           [(ngModel)]=\"endValue\"\n           (change)=\"valueChanged($event, 1)\"\n           #endInput\n           />\n</div>\n\n<div style=\"clear:both; position:relative;\"\n     class=\"slider-container ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all\"\n     styled\n     [styleBlock] = \"['{height: 26px; margin-top: 7px; margin-bottom: 12px}', '.slider-handle {box-sizing: content-box;}']\">\n    <div #ribbon\n         id=\"{{id + '-ribbon'}}\"\n         class=\"range-ribbon ui-slider-range ui-widget-header ui-corner-all\">\n    </div>\n    <span #start\n          slideAble\n          slideDirection=\"horisontal\"\n          boundElement=\"{{id + '-ribbon'}}\"\n          dynamicRightLimit=\"{{(isRange == true) ? id + '-right-handle' : null}}\"\n          (onStopSliding)=\"onStopSliding($event)\"\n          (onSliding)=\"onSliding($event)\"\n          (onInit)=\"initHandlers('Start', $event)\"\n          [id]=\"id + '-left-handle'\"\n          [parent]=\"instance\"\n          [step]=\"stepX\"\n          class=\"slider-handle ui-slider-handle ui-state-default ui-corner-all\"\n          tabindex=\"0\"\n          style=\"left: 0%;\"></span>\n    <span *ngIf=\"isRange\"\n          #end\n          slideAble\n          slideDirection=\"horisontal\"\n          boundElement=\"{{id + '-ribbon'}}\"\n          [dynamicLeftLimit]=\"id + '-left-handle'\"\n          (onStopSliding)=\"onStopSliding($event)\"\n          (onSliding)=\"onSliding($event)\"\n          (onInit)=\"initHandlers('End', $event)\"\n          [id]=\"id + '-right-handle'\"\n          [step]=\"stepX\"\n          class=\"slider-handle ui-slider-handle ui-state-default ui-corner-all\"\n          tabindex=\"0\"\n          style=\"left: 100%;\"></span>\n</div> \n"
         }), 
         __metadata('design:paramtypes', [core_1.ChangeDetectorRef, core_1.ElementRef, core_1.ViewContainerRef, core_1.Renderer])
     ], Ng2SliderComponent);
@@ -336,28 +338,32 @@ var Range = (function () {
             this.config.min = parseFloat(this.config.min);
         if (typeof (this.config.max == 'string'))
             this.config.max = parseFloat(this.config.max);
+        this._element = config.element;
         this.boundingRect = config.element.getBoundingClientRect();
     }
     Range.prototype.calculatePercentFromValue = function (value) {
         return Math.round(100 * (value - this.config.min) / (this.config.max - this.config.min));
     };
     Range.prototype.calculateXFromValue = function (value) {
-        return this.boundingRect.left + Math.round((this.boundingRect.right - this.boundingRect.left) * (value - this.config.min) / (this.config.max - this.config.min));
+        return this._element.getBoundingClientRect().left + Math.round((this._element.getBoundingClientRect().right - this._element.getBoundingClientRect().left) * (value - this.config.min) / (this.config.max - this.config.min));
     };
     Range.prototype.calculatePercentFromX = function (x) {
-        return Math.round(100 * (x - this.boundingRect.left) / (this.boundingRect.right - this.boundingRect.left));
+        return Math.round(100 * (x - this._element.getBoundingClientRect().left) / (this._element.getBoundingClientRect().right - this._element.getBoundingClientRect().left));
     };
     Range.prototype.calculateValueFromX = function (x) {
-        return this.config.min + Math.round((this.config.max - this.config.min) * (x - this.boundingRect.left) / (this.boundingRect.right - this.boundingRect.left));
+        return this.config.min + Math.round((this.config.max - this.config.min) * (x - this._element.getBoundingClientRect().left) / (this._element.getBoundingClientRect().right - this.v.left));
     };
     Range.prototype.calculateStepX = function (step) {
-        return step * (this.boundingRect.right - this.boundingRect.left) / (this.config.max - this.config.min);
+        return step * (this._element.getBoundingClientRect().right - this._element.getBoundingClientRect().left) / (this.config.max - this.config.min);
+    };
+    Range.prototype.resetBoundingRect = function () {
+        this.boundingRect = this._element.getBoundingClientRect();
     };
     Range.prototype.getLeftX = function () {
-        return this.boundingRect.left;
+        return this._element.getBoundingClientRect().left;
     };
     Range.prototype.getRightX = function () {
-        return this.boundingRect.right;
+        return this._element.getBoundingClientRect().right;
     };
     return Range;
 }());

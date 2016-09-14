@@ -92,12 +92,8 @@ export enum RangeHandle {Start, End, Both}
           class="slider-handle ui-slider-handle ui-state-default ui-corner-all"
           tabindex="0"
           style="left: 100%;"></span>
-</div>
-`,
-/*
-    directives: [SlideAbleDirective, Ng2StyledDirective],
-*/
-    changeDetection: ChangeDetectionStrategy.OnPush
+</div> 
+`
 })
 export class Ng2SliderComponent implements ISkinable{
 
@@ -209,6 +205,7 @@ export class Ng2SliderComponent implements ISkinable{
     }
 
     refreshInputBox(boundingRect : any, handle:RangeHandle) {
+        this.range.resetBoundingRect();
         let value = this.range.calculateValueFromX(boundingRect.left + Math.round(boundingRect.width / 2))
         switch (handle) {
             case RangeHandle.Start:
@@ -258,6 +255,8 @@ export class Ng2SliderComponent implements ISkinable{
      */
     valueChanged(el: any, handle:RangeHandle = RangeHandle.Both) {
 
+        this.range.resetBoundingRect();
+
         if (handle == RangeHandle.Both || handle == RangeHandle.Start) {
             // Affixing start value to the step grid
             this.startValue = this.initialStartValue + Math.round((this.startValue - this.initialStartValue) / this.stepValue) * this.stepValue ;
@@ -301,6 +300,7 @@ export class Ng2SliderComponent implements ISkinable{
         this.CDR.markForCheck();
         this.CDR.detectChanges();
 
+        this.rangeChangedTrigger();
     }
 
     ngAfterViewInit() {
@@ -452,9 +452,14 @@ export class Range {
 
     private boundingRect:BoundingRectClass;
 
+    private _element : any;
+
     constructor(private config:{element:any, min:any, max:any}) {
         if (typeof(this.config.min == 'string')) this.config.min = parseFloat(this.config.min);
         if (typeof(this.config.max == 'string')) this.config.max = parseFloat(this.config.max);
+
+        this._element = config.element;
+
         this.boundingRect = config.element.getBoundingClientRect();
     }
 
@@ -470,30 +475,33 @@ export class Range {
     }
 
     calculateXFromValue(value:number) {
-        return  this.boundingRect.left +  Math.round((this.boundingRect.right - this.boundingRect.left) * (value - this.config.min) / (this.config.max - this.config.min));
+        return  this._element.getBoundingClientRect().left +  Math.round((this._element.getBoundingClientRect().right - this._element.getBoundingClientRect().left) * (value - this.config.min) / (this.config.max - this.config.min));
     }
 
     // Calculate relative handle position (percent) from his position coordinate
     calculatePercentFromX(x:number) {
-        return Math.round(100 * (x - this.boundingRect.left) / (this.boundingRect.right - this.boundingRect.left));
+        return Math.round(100 * (x - this._element.getBoundingClientRect().left) / (this._element.getBoundingClientRect().right - this._element.getBoundingClientRect().left));
     }
 
     // Calculate value from handle position coordinate
     calculateValueFromX(x:number) {
-        return this.config.min + Math.round((this.config.max - this.config.min) * (x - this.boundingRect.left) / (this.boundingRect.right - this.boundingRect.left));
+        return this.config.min + Math.round((this.config.max - this.config.min) * (x - this._element.getBoundingClientRect().left) / (this._element.getBoundingClientRect().right - this.v.left));
     }
 
     calculateStepX(step : any) {
-        return step * (this.boundingRect.right - this.boundingRect.left) / (this.config.max - this.config.min);
+        return step * (this._element.getBoundingClientRect().right - this._element.getBoundingClientRect().left) / (this.config.max - this.config.min);
     }
 
+    resetBoundingRect(){
+        this.boundingRect = this._element.getBoundingClientRect();
+    }
 
     getLeftX() {
-        return this.boundingRect.left;
+        return this._element.getBoundingClientRect().left;
     }
 
     getRightX() {
-        return this.boundingRect.right;
+        return this._element.getBoundingClientRect().right;
     }
 
 }
