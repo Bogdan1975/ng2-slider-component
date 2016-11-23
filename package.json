@@ -1,16 +1,76 @@
 {
-  "name": "ng2-slider-component",
-  "version": "1.0.9",
-  "description": "Angular 2 slider component.",
-  "author": "Bogdan Shapoval (targus) <it.targus@gmail.com>",
-  "main": "ng2-slider.component.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Bogdan1975/ng2-slider-component.git"
+  "_args": [
+    [
+      {
+        "raw": "git://github.com/madwebs/ng2-slider-component.git",
+        "scope": null,
+        "escapedName": null,
+        "name": null,
+        "rawSpec": "git://github.com/madwebs/ng2-slider-component.git",
+        "spec": "git://github.com/madwebs/ng2-slider-component.git",
+        "type": "hosted",
+        "hosted": {
+          "type": "github",
+          "ssh": "git@github.com:madwebs/ng2-slider-component.git",
+          "sshUrl": "git+ssh://git@github.com/madwebs/ng2-slider-component.git",
+          "httpsUrl": "git+https://github.com/madwebs/ng2-slider-component.git",
+          "gitUrl": "git://github.com/madwebs/ng2-slider-component.git",
+          "shortcut": "github:madwebs/ng2-slider-component",
+          "directUrl": "https://raw.githubusercontent.com/madwebs/ng2-slider-component/master/package.json"
+        }
+      },
+      "/Users/martinolessio/WorkSpaces/WebDev/madcommerce/public/backend/dev/newengine/ng"
+    ]
+  ],
+  "_from": "git://github.com/madwebs/ng2-slider-component.git",
+  "_id": "ng2-slider-component@1.0.9",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/ng2-slider-component",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "git://github.com/madwebs/ng2-slider-component.git",
+    "scope": null,
+    "escapedName": null,
+    "name": null,
+    "rawSpec": "git://github.com/madwebs/ng2-slider-component.git",
+    "spec": "git://github.com/madwebs/ng2-slider-component.git",
+    "type": "hosted",
+    "hosted": {
+      "type": "github",
+      "ssh": "git@github.com:madwebs/ng2-slider-component.git",
+      "sshUrl": "git+ssh://git@github.com/madwebs/ng2-slider-component.git",
+      "httpsUrl": "git+https://github.com/madwebs/ng2-slider-component.git",
+      "gitUrl": "git://github.com/madwebs/ng2-slider-component.git",
+      "shortcut": "github:madwebs/ng2-slider-component",
+      "directUrl": "https://raw.githubusercontent.com/madwebs/ng2-slider-component/master/package.json"
+    }
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "git://github.com/madwebs/ng2-slider-component.git#0fd12f0e908483121bf42b55b5dcc26ab9bace34",
+  "_shasum": "3c0220bee77804bf2b453fe4c4efb6e83eda0d0c",
+  "_shrinkwrap": null,
+  "_spec": "git://github.com/madwebs/ng2-slider-component.git",
+  "_where": "/Users/martinolessio/WorkSpaces/WebDev/madcommerce/public/backend/dev/newengine/ng",
+  "author": {
+    "name": "Bogdan Shapoval",
+    "email": "it.targus@gmail.com",
+    "url": "targus"
   },
   "bugs": {
     "url": "https://github.com/Bogdan1975/ng2-slider-component/issues"
   },
+  "dependencies": {
+    "ng2-slideable-directive": "1.0.13",
+    "ng2-styled-directive": "1.0.5"
+  },
+  "description": "Angular 2 slider component.",
+  "devDependencies": {},
+  "gitHead": "0fd12f0e908483121bf42b55b5dcc26ab9bace34",
+  "homepage": "https://github.com/Bogdan1975/ng2-slider-component#readme",
   "keywords": [
     "angularjs",
     "angular2",
@@ -23,10 +83,15 @@
     "range slider",
     "range"
   ],
-  "dependencies": {
-    "ng2-slideable-directive": "1.0.13",
-    "ng2-styled-directive": "1.0.5"
+  "license": "MIT",
+  "main": "ng2-slider.component.js",
+  "name": "ng2-slider-component",
+  "optionalDependencies": {},
+  "readme": "# ng2-slider-component\n\n\nStatus:\n[![GitHub license](https://img.shields.io/github/license/mashape/apistatus.svg?style=flat-square)]()\n\n\nAngular 2 slider component\n\nDemo: [http://bogdan1975.github.io/slider/](http://bogdan1975.github.io/slider/)\n\n* [Dependencies](#dependencies)\n* [Install](#install)\n* [Usage](#usage)\n    - [Component](#component)\n    - [Events](#events)\n\n\n# Dependencies\n\n- [Angular 2](https://github.com/angular/angular)\n- [SlideAble Directive Module](https://github.com/Bogdan1975/ng2-slideable-directive)   `npm install ng2-slideable-directive`\n- [Styled Directive Module](https://github.com/Bogdan1975/ng2-styled-directive)   `npm install ng2-styled-directive`\n    \n\n# Install\n\nYou can get it on npm.\n\n```shell\nnpm install ng2-slider-component\n```\n\n###`IMPORTANT!`\n\n*.js files compiled for WebPack\n\nIf you use SystemJS, you have to use *.system.js files, they are compiled for SystemJS.\n\nFragment of SystemJS config:\n\n```javascript\npackages: {\n\n    ....\n    \n    'node_modules/ng2-slider-component': {\n            main: 'ng2-slider.component.system.js',\n            defaultExtension: 'system.js' \n    },\n    \n    .... \n    \n}\n```\n\n\n# Usage\n\n```html\n<ng2-slider \n    min=\"6\"\n    max=\"23\"\n    startValue=\"9\"\n    endValue=\"21\"\n    stepValue=\"2\"\n    [normalHandlerStyle]=\"{ 'background-color': 'green'}\"\n    [slidingHandlerStyle]=\"{\n          'border-radius': '9px',\n          'background-color': 'red'\n    }\">\n</ng2-slider>\n```\n\n\n## Component\n\n### `min`, `max`\n\nThis attributes set range of possible values\n\n### `value`\n\nThis attribute set initial value and set simple mode. `startValue` and `endValue` will be ignored.\n\n### `startValue`\n\nThis attribute set initial floor value. Ignored in `value` was set case.\n\n### `endValue`\n\nThis attribute set initial ceil value and set range mode. Ignored in `value` was set case.\nIn case of this attribute is not set, mode will be set to simple\n\n### `stepValue`\n\nAttribute set step value\n\nDefault value: \"1\"\n\n### `normalHandlerStyle`, `slidingHandlerStyle`\n\nThis attributes set styles of slider handles in normal and sliding modes\n\nExample:\n\n```html\n<ng2-slider min=\"3\"\n    max=\"33\"\n    value=\"7\"\n    stepValue=\"1\"\n    [normalHandlerStyle]=\"{ 'background-color': 'blue'}\"\n    [slidingHandlerStyle]=\"{\n          'border-radius': '9px',\n          'background-color': 'orange'\n    }\" >\n</ng2-slider>\n```\n\n\n\n## Events\n\n### `onRangeChanged`\n\nEvent `onRangeChanged` fired when range was changed",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bogdan1975/ng2-slider-component.git"
   },
-  "devDependencies": {},
-  "license": "MIT"
+  "version": "1.0.9"
 }

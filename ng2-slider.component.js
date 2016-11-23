@@ -201,6 +201,7 @@ var Ng2SliderComponent = (function () {
         if (this.handlers.End)
             this.valueChanged({}, RangeHandle.End);
         this.stepX = this.range.calculateStepX(this.stepValue);
+        this.CDR.detectChanges();
     };
     Ng2SliderComponent.prototype.rangeChangedTrigger = function () {
         this.rangeChangedEvent.emit(this);

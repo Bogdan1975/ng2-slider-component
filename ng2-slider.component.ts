@@ -371,6 +371,7 @@ export class Ng2SliderComponent implements ISkinable{
         if (this.handlers.End) this.valueChanged({}, RangeHandle.End);
 
         this.stepX = this.range.calculateStepX(this.stepValue);
+        this.CDR.detectChanges();
 
     }
 
